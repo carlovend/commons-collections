@@ -228,7 +228,9 @@ public class MapUtils {
         if (map != null) {
             final Object answer = map.get(key);
             Boolean answer1 = getaBoolean(answer);
-            if (answer1 != null) return answer1;
+            if (answer1 != null) {
+                return answer1;
+            }
         }
         return null;
     }
@@ -1669,7 +1671,9 @@ public class MapUtils {
     public static <K, V> Map<K, V> putAll(final Map<K, V> map, final Object[] array) {
         Objects.requireNonNull(map, "map");
         Map<K, V> map1 = getKvMap(map, array);
-        if (map1 != null) return map1;
+        if (map1 != null) {
+            return map1;
+        }
         final Object obj = array[0];
         if (obj instanceof Map.Entry) {
             for (final Object element : array) {
@@ -1988,7 +1992,9 @@ public class MapUtils {
             final Deque<Map<?, ?>> lineage, final boolean debug) {
         printIndent(out, lineage.size());
 
-        if (extracted(out, label, map)) return;
+        if (extracted(out, label, map)) {
+            return;
+        }
         if (label != null) {
             out.print(label);
             out.println(" = ");
