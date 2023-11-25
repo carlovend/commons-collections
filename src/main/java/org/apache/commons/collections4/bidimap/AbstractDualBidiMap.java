@@ -30,6 +30,8 @@ import org.apache.commons.collections4.collection.AbstractCollectionDecorator;
 import org.apache.commons.collections4.iterators.AbstractIteratorDecorator;
 import org.apache.commons.collections4.keyvalue.AbstractMapEntryDecorator;
 
+import static org.apache.commons.collections4.bidimap.AbstractDualBidiMap.KeySetIterator.ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT;
+
 /**
  * Abstract {@link BidiMap} implemented using two maps.
  * <p>
@@ -482,6 +484,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
      */
     protected static class KeySetIterator<K> extends AbstractIteratorDecorator<K> {
 
+        public static final String ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT = "Iterator remove() can only be called once after next()";
         /** The parent map */
         protected final AbstractDualBidiMap<K, ?> parent;
 
@@ -511,7 +514,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
         @Override
         public void remove() {
             if (!canRemove) {
-                throw new IllegalStateException("Iterator remove() can only be called once after next()");
+                throw new IllegalStateException(ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT);
             }
             final Object value = parent.normalMap.get(lastKey);
             super.remove();
@@ -599,7 +602,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
         @Override
         public void remove() {
             if (!canRemove) {
-                throw new IllegalStateException("Iterator remove() can only be called once after next()");
+                throw new IllegalStateException(ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT);
             }
             super.remove(); // removes from maps[0]
             parent.reverseMap.remove(lastValue);
@@ -689,7 +692,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
         @Override
         public void remove() {
             if (!canRemove) {
-                throw new IllegalStateException("Iterator remove() can only be called once after next()");
+                throw new IllegalStateException(ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT);
             }
             // store value as remove may change the entry in the decorator (e.g. TreeMap)
             final Object value = last.getValue();
@@ -778,7 +781,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
         @Override
         public void remove() {
             if (!canRemove) {
-                throw new IllegalStateException("Iterator remove() can only be called once after next()");
+                throw new IllegalStateException(ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT);
             }
             // store value as remove may change the entry in the decorator (e.g. TreeMap)
             final V value = last.getValue();

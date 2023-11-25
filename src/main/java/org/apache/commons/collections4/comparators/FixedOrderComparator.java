@@ -218,21 +218,25 @@ public class FixedOrderComparator<T> implements Comparator<T>, Serializable {
         final Integer position1 = map.get(obj1);
         final Integer position2 = map.get(obj2);
         if (position1 == null || position2 == null) {
-            switch (unknownObjectBehavior) {
-            case BEFORE:
-                return position1 == null ? position2 == null ? 0 : -1 : 1;
-            case AFTER:
-                return position1 == null ? position2 == null ? 0 : 1 : -1;
-            case EXCEPTION:
-                final Object unknownObj = position1 == null ? obj1 : obj2;
-                throw new IllegalArgumentException("Attempting to compare unknown object "
-                        + unknownObj);
-            default: //could be null
-                throw new UnsupportedOperationException("Unknown unknownObjectBehavior: "
-                        + unknownObjectBehavior);
-            }
+            return extracted(obj1, obj2, position1, position2, unknownObjectBehavior);
         }
         return position1.compareTo(position2);
+    }
+
+    private static <T> int extracted(T obj1, T obj2, Integer position1, Integer position2, UnknownObjectBehavior unknownObjectBehavior) {
+        switch (unknownObjectBehavior) {
+        case BEFORE:
+            return position1 == null ? position2 == null ? 0 : -1 : 1;
+        case AFTER:
+            return position1 == null ? position2 == null ? 0 : 1 : -1;
+        case EXCEPTION:
+            final Object unknownObj = position1 == null ? obj1 : obj2;
+            throw new IllegalArgumentException("Attempting to compare unknown object "
+                    + unknownObj);
+        default: //could be null
+            throw new UnsupportedOperationException("Unknown unknownObjectBehavior: "
+                    + unknownObjectBehavior);
+        }
     }
 
     /**
