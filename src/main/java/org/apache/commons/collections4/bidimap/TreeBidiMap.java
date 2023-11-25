@@ -537,10 +537,14 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
                 throw new IllegalArgumentException("Cannot store a duplicate key (\"" + key + "\") in this Map");
             }
             if (cmp < 0) {
-                if (extracted(key, value, node)) break;
+                if (extracted(key, value, node)){
+                    break;
+                }
                 node = node.getLeft(KEY);
             } else { // cmp > 0
-                if (extracted1(key, value, node)) break;
+                if (extracted1(key, value, node)){
+                    break;
+                }
                 node = node.getRight(KEY);
             }
         }
