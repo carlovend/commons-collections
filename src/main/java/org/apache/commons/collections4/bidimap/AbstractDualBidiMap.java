@@ -16,13 +16,6 @@
  */
 package org.apache.commons.collections4.bidimap;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Predicate;
-
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.ResettableIterator;
@@ -30,8 +23,8 @@ import org.apache.commons.collections4.collection.AbstractCollectionDecorator;
 import org.apache.commons.collections4.iterators.AbstractIteratorDecorator;
 import org.apache.commons.collections4.keyvalue.AbstractMapEntryDecorator;
 
-import static org.apache.commons.collections4.bidimap.AbstractDualBidiMap.KeySetIterator.ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT;
-
+import java.util.*;
+import java.util.function.Predicate;
 /**
  * Abstract {@link BidiMap} implemented using two maps.
  * <p>
@@ -602,7 +595,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
         @Override
         public void remove() {
             if (!canRemove) {
-                throw new IllegalStateException(ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT);
+                throw new IllegalStateException(KeySetIterator.ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT);
             }
             super.remove(); // removes from maps[0]
             parent.reverseMap.remove(lastValue);
@@ -692,7 +685,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
         @Override
         public void remove() {
             if (!canRemove) {
-                throw new IllegalStateException(ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT);
+                throw new IllegalStateException(KeySetIterator.ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT);
             }
             // store value as remove may change the entry in the decorator (e.g. TreeMap)
             final Object value = last.getValue();
@@ -781,7 +774,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
         @Override
         public void remove() {
             if (!canRemove) {
-                throw new IllegalStateException(ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT);
+                throw new IllegalStateException(KeySetIterator.ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT);
             }
             // store value as remove may change the entry in the decorator (e.g. TreeMap)
             final V value = last.getValue();
