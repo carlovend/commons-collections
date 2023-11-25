@@ -33,7 +33,7 @@ public class ChainedClosure<E> implements Closure<E>, Serializable {
     private static final long serialVersionUID = -3520677225766901240L;
 
     /** The closures to call in turn */
-    private final Closure<? super E>[] iClosures;
+    private final transient Closure<? super E>[] iClosures;
 
     /**
      * Factory method that performs validation and copies the parameter array.
