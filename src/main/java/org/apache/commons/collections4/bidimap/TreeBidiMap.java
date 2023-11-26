@@ -1027,7 +1027,12 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
             // if deleted node has both left and children, swap with
             // the next greater node
             if (deletedNode.getLeft(dataElement) != null && deletedNode.getRight(dataElement) != null) {
-                swapPosition(nextGreater(deletedNode, dataElement), deletedNode, dataElement);
+                try {
+                    swapPosition(nextGreater(deletedNode, dataElement), deletedNode, dataElement);
+                }catch (Exception e) {
+                    throw new NullPointerException("SwapPosition is null");
+                }
+
             }
 
             final Node<K, V> replacement = deletedNode.getLeft(dataElement) != null ?
@@ -1101,28 +1106,15 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         Node<K, V> currentNode = replacementNode;
 
         while (currentNode != rootNode[dataElement.ordinal()] && isBlack(currentNode, dataElement)) {
-            if (currentNode.isLeftChild(dataElement)) {
-                Node<K, V> siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
+            if (currentNode != null) {
+                if (currentNode.isLeftChild(dataElement)) {
+                    Node<K, V> siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
 
-                currentNode = getNode(dataElement, siblingNode, currentNode);
-            } else {
-                Node<K, V> siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
-
-                if (isRed(siblingNode, dataElement)) {
-                    makeBlack(siblingNode, dataElement);
-                    makeRed(getParent(currentNode, dataElement), dataElement);
-                    rotateRight(getParent(currentNode, dataElement), dataElement);
-
-                    siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
-                }
-
-                if (isBlack(getRightChild(siblingNode, dataElement), dataElement)
-                    && isBlack(getLeftChild(siblingNode, dataElement), dataElement)) {
-                    makeRed(siblingNode, dataElement);
-
-                    currentNode = getParent(currentNode, dataElement);
+                    currentNode = getNode(dataElement, siblingNode, currentNode);
                 } else {
-                    currentNode = getCurrentNode(dataElement, siblingNode, currentNode);
+                    Node<K, V> siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
+
+                    currentNode = getKvNode2(dataElement, siblingNode, currentNode);
                 }
             }
         }
@@ -1130,11 +1122,40 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         makeBlack(currentNode, dataElement);
     }
 
+    private Node<K, V> getKvNode2(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
+        if (isRed(siblingNode, dataElement)) {
+            makeBlack(siblingNode, dataElement);
+            makeRed(getParent(currentNode, dataElement), dataElement);
+            try {
+                rotateRight(getParent(currentNode, dataElement), dataElement);
+            }catch (Exception e) {
+                throw new NullPointerException("Rotate right is null");
+            }
+
+            siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
+        }
+
+        if (isBlack(getRightChild(siblingNode, dataElement), dataElement)
+                && isBlack(getLeftChild(siblingNode, dataElement), dataElement)) {
+            makeRed(siblingNode, dataElement);
+
+            currentNode = getParent(currentNode, dataElement);
+        } else {
+            currentNode = getCurrentNode(dataElement, siblingNode, currentNode);
+        }
+        return currentNode;
+    }
+
     private Node<K, V> getCurrentNode(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
         if (isBlack(getLeftChild(siblingNode, dataElement), dataElement)) {
             makeBlack(getRightChild(siblingNode, dataElement), dataElement);
             makeRed(siblingNode, dataElement);
-            rotateLeft(siblingNode, dataElement);
+            try {
+                rotateLeft(siblingNode, dataElement);
+            }catch (NullPointerException e) {
+                throw new NullPointerException("Rotate is null");
+            }
+
 
             siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
         }
@@ -1142,7 +1163,11 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         copyColor(getParent(currentNode, dataElement), siblingNode, dataElement);
         makeBlack(getParent(currentNode, dataElement), dataElement);
         makeBlack(getLeftChild(siblingNode, dataElement), dataElement);
-        rotateRight(getParent(currentNode, dataElement), dataElement);
+        try {
+            rotateRight(siblingNode, dataElement);
+        }catch (NullPointerException e) {
+            throw new NullPointerException("Rotate is null");
+        }
 
         currentNode = rootNode[dataElement.ordinal()];
         return currentNode;
@@ -1152,7 +1177,12 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         if (isRed(siblingNode, dataElement)) {
             makeBlack(siblingNode, dataElement);
             makeRed(getParent(currentNode, dataElement), dataElement);
-            rotateLeft(getParent(currentNode, dataElement), dataElement);
+            try {
+                rotateLeft(getParent(currentNode, dataElement), dataElement);
+            }catch (NullPointerException e) {
+                throw new NullPointerException("Rotate left is null");
+            }
+
 
             siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
         }
@@ -1172,7 +1202,11 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         if (isBlack(getRightChild(siblingNode, dataElement), dataElement)) {
             makeBlack(getLeftChild(siblingNode, dataElement), dataElement);
             makeRed(siblingNode, dataElement);
-            rotateRight(siblingNode, dataElement);
+            try {
+                rotateRight(siblingNode, dataElement);
+            }catch (NullPointerException e) {
+                throw new NullPointerException("Rotate is null");
+            }
 
             siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
         }
@@ -1180,7 +1214,11 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         copyColor(getParent(currentNode, dataElement), siblingNode, dataElement);
         makeBlack(getParent(currentNode, dataElement), dataElement);
         makeBlack(getRightChild(siblingNode, dataElement), dataElement);
-        rotateLeft(getParent(currentNode, dataElement), dataElement);
+        try {
+            rotateLeft(getParent(currentNode, dataElement), dataElement);
+        }catch (Exception e) {
+            throw new NullPointerException("Rotate left is null");
+        }
 
         currentNode = rootNode[dataElement.ordinal()];
         return currentNode;
