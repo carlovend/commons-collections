@@ -343,7 +343,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
         private static final long serialVersionUID = 4621510560119690639L;
 
         /** The parent map */
-        protected final AbstractDualBidiMap<K, V> parent;
+        protected final transient  AbstractDualBidiMap<K, V> parent;
 
         /**
          * Constructor.

@@ -222,20 +222,30 @@ public class MapUtils {
      * @param key the key to look up
      * @return the value in the Map as a Boolean, {@code null} if null map input
      */
+    @javax.annotation.Nullable
+
     public static <K> Boolean getBoolean(final Map<? super K, ?> map, final K key) {
         if (map != null) {
             final Object answer = map.get(key);
-            if (answer != null) {
-                if (answer instanceof Boolean) {
-                    return (Boolean) answer;
-                }
-                if (answer instanceof String) {
-                    return Boolean.valueOf((String) answer);
-                }
-                if (answer instanceof Number) {
-                    final Number n = (Number) answer;
-                    return n.intValue() != 0 ? Boolean.TRUE : Boolean.FALSE;
-                }
+            Boolean answer1 = getaBoolean(answer);
+            if (answer1 != null) {
+                return answer1;
+            }
+        }
+        return null;
+    }
+    @javax.annotation.Nullable
+    private static Boolean getaBoolean(Object answer) {
+        if (answer != null) {
+            if (answer instanceof Boolean) {
+                return (Boolean) answer;
+            }
+            if (answer instanceof String) {
+                return Boolean.valueOf((String) answer);
+            }
+            if (answer instanceof Number) {
+                final Number n = (Number) answer;
+                return n.intValue() != 0 ? Boolean.TRUE : Boolean.FALSE;
             }
         }
         return null;
@@ -1661,8 +1671,9 @@ public class MapUtils {
     @SuppressWarnings("unchecked") // As per Javadoc throws CCE for invalid array contents
     public static <K, V> Map<K, V> putAll(final Map<K, V> map, final Object[] array) {
         Objects.requireNonNull(map, "map");
-        if (array == null || array.length == 0) {
-            return map;
+        Map<K, V> map1 = getKvMap(map, array);
+        if (map1 != null) {
+            return map1;
         }
         final Object obj = array[0];
         if (obj instanceof Map.Entry) {
@@ -1672,11 +1683,7 @@ public class MapUtils {
                 map.put(entry.getKey(), entry.getValue());
             }
         } else if (obj instanceof KeyValue) {
-            for (final Object element : array) {
-                // cast ok here, type is checked above
-                final KeyValue<K, V> keyval = (KeyValue<K, V>) element;
-                map.put(keyval.getKey(), keyval.getValue());
-            }
+            extracted(map, array);
         } else if (obj instanceof Object[]) {
             for (int i = 0; i < array.length; i++) {
                 final Object[] sub = (Object[]) array[i];
@@ -1693,6 +1700,21 @@ public class MapUtils {
             }
         }
         return map;
+    }
+
+    private static <K, V> void extracted(Map<K, V> map, Object[] array) {
+        for (final Object element : array) {
+            // cast ok here, type is checked above
+            final KeyValue<K, V> keyval = (KeyValue<K, V>) element;
+            map.put(keyval.getKey(), keyval.getValue());
+        }
+    }
+
+    private static <K, V> Map<K, V> getKvMap(Map<K, V> map, Object[] array) {
+        if (array == null || array.length == 0) {
+            return map;
+        }
+        return null;
     }
 
     /**
@@ -1971,12 +1993,7 @@ public class MapUtils {
             final Deque<Map<?, ?>> lineage, final boolean debug) {
         printIndent(out, lineage.size());
 
-        if (map == null) {
-            if (label != null) {
-                out.print(label);
-                out.print(" = ");
-            }
-            out.println("null");
+        if (extracted(out, label, map)) {
             return;
         }
         if (label != null) {
@@ -1989,7 +2006,16 @@ public class MapUtils {
 
         lineage.addLast(map);
 
-        for (final Map.Entry<?, ?> entry : map.entrySet()) {
+        extracted(out, map, lineage, debug);
+
+        lineage.removeLast();
+
+        printIndent(out, lineage.size());
+        out.println(debug ? "} " + map.getClass().getName() : "}");
+    }
+
+    private static void extracted(PrintStream out, Map<?, ?> map, Deque<Map<?, ?>> lineage, boolean debug) {
+        for (final Entry<?, ?> entry : map.entrySet()) {
             final Object childKey = entry.getKey();
             final Object childValue = entry.getValue();
             if (childValue instanceof Map && !lineage.contains(childValue)) {
@@ -1999,14 +2025,7 @@ public class MapUtils {
                 out.print(childKey);
                 out.print(" = ");
 
-                final int lineageIndex = IterableUtils.indexOf(lineage, PredicateUtils.equalPredicate(childValue));
-                if (lineageIndex == -1) {
-                    out.print(childValue);
-                } else if (lineage.size() - 1 == lineageIndex) {
-                    out.print("(this Map)");
-                } else {
-                    out.print("(ancestor[" + (lineage.size() - 1 - lineageIndex - 1) + "] Map)");
-                }
+                extracted(out, lineage, childValue);
 
                 if (debug && childValue != null) {
                     out.print(' ');
@@ -2016,11 +2035,29 @@ public class MapUtils {
                 }
             }
         }
+    }
 
-        lineage.removeLast();
+    private static void extracted(PrintStream out, Deque<Map<?, ?>> lineage, Object childValue) {
+        final int lineageIndex = IterableUtils.indexOf(lineage, PredicateUtils.equalPredicate(childValue));
+        if (lineageIndex == -1) {
+            out.print(childValue);
+        } else if (lineage.size() - 1 == lineageIndex) {
+            out.print("(this Map)");
+        } else {
+            out.print("(ancestor[" + (lineage.size() - 1 - lineageIndex - 1) + "] Map)");
+        }
+    }
 
-        printIndent(out, lineage.size());
-        out.println(debug ? "} " + map.getClass().getName() : "}");
+    private static boolean extracted(PrintStream out, Object label, Map<?, ?> map) {
+        if (map == null) {
+            if (label != null) {
+                out.print(label);
+                out.print(" = ");
+            }
+            out.println("null");
+            return true;
+        }
+        return false;
     }
 
     /**

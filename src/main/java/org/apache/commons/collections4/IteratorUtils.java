@@ -104,6 +104,8 @@ public class IteratorUtils {
      */
     @SuppressWarnings("rawtypes")
     public static final OrderedMapIterator EMPTY_ORDERED_MAP_ITERATOR = EmptyOrderedMapIterator.INSTANCE;
+    public static final String ITERATOR = "iterator";
+    public static final String PREDICATE = "predicate";
     /**
      * Default delimiter used to delimit elements while converting an Iterator
      * to its String representation.
@@ -705,7 +707,7 @@ public class IteratorUtils {
     public static <E> Iterator<E> filteredIterator(final Iterator<? extends E> iterator,
                                                    final Predicate<? super E> predicate) {
         Objects.requireNonNull(iterator, ITERATOR);
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(predicate, PREDICATE);
         return new FilterIterator<>(iterator, predicate);
     }
 
@@ -725,7 +727,7 @@ public class IteratorUtils {
             final Predicate<? super E> predicate) {
 
         Objects.requireNonNull(listIterator, "listIterator");
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(predicate, PREDICATE);
         return new FilterListIterator<>(listIterator, predicate);
     }
 
@@ -1180,7 +1182,7 @@ public class IteratorUtils {
      * @since 4.1
      */
     public static <E> E find(final Iterator<E> iterator, final Predicate<? super E> predicate) {
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(predicate, PREDICATE);
 
         if (iterator != null) {
             while (iterator.hasNext()) {
@@ -1207,7 +1209,7 @@ public class IteratorUtils {
      * @since 4.1
      */
     public static <E> int indexOf(final Iterator<E> iterator, final Predicate<? super E> predicate) {
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(predicate, PREDICATE);
 
         if (iterator != null) {
             for (int index = 0; iterator.hasNext(); index++) {
@@ -1250,7 +1252,7 @@ public class IteratorUtils {
      * @since 4.1
      */
     public static <E> boolean matchesAll(final Iterator<E> iterator, final Predicate<? super E> predicate) {
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(predicate, PREDICATE);
 
         if (iterator != null) {
             while (iterator.hasNext()) {

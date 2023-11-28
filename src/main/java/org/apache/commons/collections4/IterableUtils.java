@@ -50,6 +50,7 @@ import org.apache.commons.collections4.iterators.UniqueFilterIterator;
  */
 public class IterableUtils {
 
+    public static final String PREDICATE = "predicate";
     /**
      * An empty iterable.
      */
@@ -247,7 +248,7 @@ public class IterableUtils {
     public static <E> Iterable<E> filteredIterable(final Iterable<E> iterable,
                                                    final Predicate<? super E> predicate) {
         checkNotNull(iterable);
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(predicate, PREDICATE);
         return new FluentIterable<E>() {
             @Override
             public Iterator<E> iterator() {
@@ -630,7 +631,7 @@ public class IterableUtils {
      * @throws NullPointerException if predicate is null
      */
     public static <E> long countMatches(final Iterable<E> input, final Predicate<? super E> predicate) {
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(predicate, PREDICATE);
         return size(filteredIterable(emptyIfNull(input), predicate));
     }
 
@@ -795,7 +796,7 @@ public class IterableUtils {
      */
     public static <O> List<List<O>> partition(final Iterable<? extends O> iterable,
                                               final Predicate<? super O> predicate) {
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(predicate, PREDICATE);
         @SuppressWarnings({ "unchecked", "rawtypes" }) // safe
         final Factory<List<O>> factory = FactoryUtils.instantiateFactory((Class) ArrayList.class);
         @SuppressWarnings("unchecked") // safe
@@ -890,7 +891,7 @@ public class IterableUtils {
         Objects.requireNonNull(predicates, "predicates");
 
         for (final Predicate<?> predicate : predicates) {
-            Objects.requireNonNull(predicate, "predicate");
+            Objects.requireNonNull(predicate, PREDICATE);
         }
 
         if (predicates.length < 1) {

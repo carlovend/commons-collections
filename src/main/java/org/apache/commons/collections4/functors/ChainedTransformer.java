@@ -39,7 +39,7 @@ public class ChainedTransformer<T> implements Transformer<T, T>, Serializable {
     private static final long serialVersionUID = 3514945074733160196L;
 
     /** The transformers to call in turn */
-    private final Transformer<? super T, ? extends T>[] iTransformers;
+    private final transient Transformer<? super T, ? extends T>[] iTransformers;
 
     /**
      * Factory method that performs validation and copies the parameter array.
