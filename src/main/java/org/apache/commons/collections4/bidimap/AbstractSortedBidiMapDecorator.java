@@ -48,7 +48,7 @@ public abstract class AbstractSortedBidiMapDecorator<K, V>
      * @param map  the map to decorate, must not be null
      * @throws NullPointerException if the collection is null
      */
-    protected AbstractSortedBidiMapDecorator(final SortedBidiMap<K, V> map) {
+    public AbstractSortedBidiMapDecorator(final SortedBidiMap<K, V> map) {
         super(map);
     }
 
