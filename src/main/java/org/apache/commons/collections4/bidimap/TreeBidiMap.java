@@ -981,7 +981,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
                         try {
                             rotateLeft(getGrandParent(currentNode, dataElement), dataElement);
                         } catch (NullPointerException e) {
-                            throw new NullPointerException("null element");
+                            throw new NullPointerException("element null");
                         }
                     }
                 }
@@ -1001,9 +1001,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         for (final DataElement dataElement : DataElement.values()) {
             // if deleted node has both left and children, swap with
             // the next greater node
-            if (deletedNode.getLeft(dataElement) != null && deletedNode.getRight(dataElement) != null) {
-                swapPosition(nextGreater(deletedNode, dataElement), deletedNode, dataElement);
-            }
+            extracted(deletedNode, dataElement);
 
             final Node<K, V> replacement = deletedNode.getLeft(dataElement) != null ?
                     deletedNode.getLeft(dataElement) : deletedNode.getRight(dataElement);
@@ -1055,6 +1053,16 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         shrink();
     }
 
+    private void extracted(Node<K, V> deletedNode, DataElement dataElement) {
+        try {
+            if (deletedNode.getLeft(dataElement) != null && deletedNode.getRight(dataElement) != null) {
+                swapPosition(nextGreater(deletedNode, dataElement), deletedNode, dataElement);
+            }
+        } catch (NullPointerException e) {
+            throw new NullPointerException("Null element");
+        }
+    }
+
     /**
      * Complicated red-black delete stuff. Based on Sun's TreeMap
      * implementation, though it's barely recognizable anymore. This
@@ -1065,77 +1073,122 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
      * @param dataElement  the KEY or VALUE int
      */
     private void doRedBlackDeleteFixup(final Node<K, V> replacementNode, final DataElement dataElement) {
+
         Node<K, V> currentNode = replacementNode;
-
         while (currentNode != rootNode[dataElement.ordinal()] && isBlack(currentNode, dataElement)) {
-            if (currentNode.isLeftChild(dataElement)) {
-                Node<K, V> siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
+            if(currentNode != null) {
+                if (currentNode.isLeftChild(dataElement)) {
+                    Node<K, V> siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
 
-                if (isRed(siblingNode, dataElement)) {
-                    makeBlack(siblingNode, dataElement);
-                    makeRed(getParent(currentNode, dataElement), dataElement);
-                    rotateLeft(getParent(currentNode, dataElement), dataElement);
+                    siblingNode = getKvNode(dataElement, siblingNode, currentNode);
 
-                    siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
-                }
-
-                if (isBlack(getLeftChild(siblingNode, dataElement), dataElement)
-                    && isBlack(getRightChild(siblingNode, dataElement), dataElement)) {
-                    makeRed(siblingNode, dataElement);
-
-                    currentNode = getParent(currentNode, dataElement);
+                    currentNode = getKvNode1(dataElement, siblingNode, currentNode);
                 } else {
-                    if (isBlack(getRightChild(siblingNode, dataElement), dataElement)) {
-                        makeBlack(getLeftChild(siblingNode, dataElement), dataElement);
-                        makeRed(siblingNode, dataElement);
-                        rotateRight(siblingNode, dataElement);
+                    Node<K, V> siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
 
-                        siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
-                    }
-
-                    copyColor(getParent(currentNode, dataElement), siblingNode, dataElement);
-                    makeBlack(getParent(currentNode, dataElement), dataElement);
-                    makeBlack(getRightChild(siblingNode, dataElement), dataElement);
-                    rotateLeft(getParent(currentNode, dataElement), dataElement);
-
-                    currentNode = rootNode[dataElement.ordinal()];
-                }
-            } else {
-                Node<K, V> siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
-
-                if (isRed(siblingNode, dataElement)) {
-                    makeBlack(siblingNode, dataElement);
-                    makeRed(getParent(currentNode, dataElement), dataElement);
-                    rotateRight(getParent(currentNode, dataElement), dataElement);
-
-                    siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
-                }
-
-                if (isBlack(getRightChild(siblingNode, dataElement), dataElement)
-                    && isBlack(getLeftChild(siblingNode, dataElement), dataElement)) {
-                    makeRed(siblingNode, dataElement);
-
-                    currentNode = getParent(currentNode, dataElement);
-                } else {
-                    if (isBlack(getLeftChild(siblingNode, dataElement), dataElement)) {
-                        makeBlack(getRightChild(siblingNode, dataElement), dataElement);
-                        makeRed(siblingNode, dataElement);
-                        rotateLeft(siblingNode, dataElement);
+                    if (isRed(siblingNode, dataElement)) {
+                        makeBlack(siblingNode, dataElement);
+                        makeRed(getParent(currentNode, dataElement), dataElement);
+                        rotateRight(getParent(currentNode, dataElement), dataElement);
 
                         siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
                     }
 
-                    copyColor(getParent(currentNode, dataElement), siblingNode, dataElement);
-                    makeBlack(getParent(currentNode, dataElement), dataElement);
-                    makeBlack(getLeftChild(siblingNode, dataElement), dataElement);
-                    rotateRight(getParent(currentNode, dataElement), dataElement);
+                    if (isBlack(getRightChild(siblingNode, dataElement), dataElement)
+                            && isBlack(getLeftChild(siblingNode, dataElement), dataElement)) {
+                        makeRed(siblingNode, dataElement);
 
-                    currentNode = rootNode[dataElement.ordinal()];
+                        currentNode = getParent(currentNode, dataElement);
+                    } else {
+                        siblingNode = getSiblingNode(dataElement, siblingNode, currentNode);
+
+                        copyColor(getParent(currentNode, dataElement), siblingNode, dataElement);
+                        makeBlack(getParent(currentNode, dataElement), dataElement);
+                        makeBlack(getLeftChild(siblingNode, dataElement), dataElement);
+                        rotateRight(getParent(currentNode, dataElement), dataElement);
+
+                        currentNode = rootNode[dataElement.ordinal()];
+                    }
                 }
             }
+
+        }
+        makeBlack(currentNode, dataElement);
+
+    }
+
+    private Node<K, V> getSiblingNode(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
+        if (isBlack(getLeftChild(siblingNode, dataElement), dataElement)) {
+            makeBlack(getRightChild(siblingNode, dataElement), dataElement);
+            makeRed(siblingNode, dataElement);
+            try {
+                rotateLeft(siblingNode, dataElement);
+            } catch (NullPointerException e) {
+                throw new NullPointerException("error null pointer");
+            }
+
+            siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
+        }
+        return siblingNode;
+    }
+
+    private Node<K, V> getKvNode1(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
+        if (isBlack(getLeftChild(siblingNode, dataElement), dataElement)
+            && isBlack(getRightChild(siblingNode, dataElement), dataElement)) {
+            makeRed(siblingNode, dataElement);
+
+            currentNode = getParent(currentNode, dataElement);
+        } else {
+            currentNode = getCurrentNode(dataElement, siblingNode, currentNode);
+        }
+        return currentNode;
+    }
+
+    private Node<K, V> getCurrentNode(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
+        siblingNode = getNode(dataElement, siblingNode, currentNode);
+
+        copyColor(getParent(currentNode, dataElement), siblingNode, dataElement);
+        makeBlack(getParent(currentNode, dataElement), dataElement);
+        makeBlack(getRightChild(siblingNode, dataElement), dataElement);
+        try {
+            rotateLeft(getParent(currentNode, dataElement), dataElement);
+        } catch (NullPointerException e) {
+            throw new NullPointerException("null element");
         }
 
-        makeBlack(currentNode, dataElement);
+        currentNode = rootNode[dataElement.ordinal()];
+        return currentNode;
+    }
+
+    private Node<K, V> getNode(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
+        if (isBlack(getRightChild(siblingNode, dataElement), dataElement)) {
+            makeBlack(getLeftChild(siblingNode, dataElement), dataElement);
+            makeRed(siblingNode, dataElement);
+            try {
+                rotateRight(siblingNode, dataElement);
+            } catch (NullPointerException e) {
+                throw new NullPointerException("null pointer");
+            }
+
+            siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
+        }
+        return siblingNode;
+    }
+
+    private Node<K, V> getKvNode(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
+        if (isRed(siblingNode, dataElement)) {
+            makeBlack(siblingNode, dataElement);
+            makeRed(getParent(currentNode, dataElement), dataElement);
+            try {
+                rotateLeft(getParent(currentNode, dataElement), dataElement);
+            } catch(NullPointerException e) {
+                throw new NullPointerException("null element");
+            }
+
+
+            siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
+        }
+        return siblingNode;
     }
 
     /**
