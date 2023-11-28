@@ -540,7 +540,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
                     break;
                 }
                 node = node.getLeft(KEY);
-            } else if(cmp > 0) { // cmp > 0
+            } else if (cmp > 0) { // cmp > 0
                 if (node.getRight(KEY) == null) {
                     final Node<K, V> newNode = new Node<>(key, value);
                     leftOrRight(newNode, node, 1);
@@ -555,9 +555,9 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
 
     private void leftOrRight(Node<K, V> newNode, Node<K, V> node, int leftOrRight){
         insertValue(newNode);
-        if(leftOrRight == 0){
+        if (leftOrRight == 0){
             node.setLeft(newNode, KEY);
-        }else{
+        }else {
             node.setRight(newNode, KEY);
         }
         newNode.setParent(node, KEY);
@@ -1076,7 +1076,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
 
         Node<K, V> currentNode = replacementNode;
         while (currentNode != rootNode[dataElement.ordinal()] && isBlack(currentNode, dataElement)) {
-            if(currentNode != null) {
+            if (currentNode != null) {
                 if (currentNode.isLeftChild(dataElement)) {
                     Node<K, V> siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
 
@@ -1181,7 +1181,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
             makeRed(getParent(currentNode, dataElement), dataElement);
             try {
                 rotateLeft(getParent(currentNode, dataElement), dataElement);
-            } catch(NullPointerException e) {
+            } catch (NullPointerException e) {
                 throw new NullPointerException("null element");
             }
 
