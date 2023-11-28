@@ -84,7 +84,7 @@ import org.apache.commons.collections4.keyvalue.UnmodifiableMapEntry;
  * @since 3.0 (previously DoubleOrderedMap v2.0)
  */
 public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
-    implements OrderedBidiMap<K, V>, Serializable {
+        implements OrderedBidiMap<K, V>, Serializable {
 
     enum DataElement {
         KEY("key"), VALUE("value");
@@ -107,8 +107,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
     }
 
     private static final long serialVersionUID = 721969328361807L;
-    private static final  String MAP_EMPTY_EXCEPTION = "Map is empty";
-    private static final String KEY_NULL_EXCEPTION = "Key is null";
+
     private transient Node<K, V>[] rootNode;
     private transient int nodeCount;
     private transient int modifications;
@@ -325,9 +324,8 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
      */
     @Override
     public K firstKey() {
-
         if (nodeCount == 0) {
-            throw new NoSuchElementException(MAP_EMPTY_EXCEPTION);
+            throw new NoSuchElementException("Map is empty");
         }
 
         Node<K, V> leastNode = leastNode(rootNode[KEY.ordinal()], KEY);
@@ -335,7 +333,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         if (leastNode != null && leastNode.getKey() != null) {
             return leastNode.getKey();
         }
-        throw new NullPointerException(KEY_NULL_EXCEPTION);
+        throw new NullPointerException("Key is null");
     }
 
     /**
@@ -347,7 +345,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
     @Override
     public K lastKey() {
         if (nodeCount == 0) {
-            throw new NoSuchElementException(MAP_EMPTY_EXCEPTION);
+            throw new NoSuchElementException("Map is empty");
         }
 
         Node<K, V> greatestNode = greatestNode(rootNode[KEY.ordinal()], KEY);
@@ -355,7 +353,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         if (greatestNode != null && greatestNode.getKey() != null) {
             return greatestNode.getKey();
         }
-        throw new NullPointerException(KEY_NULL_EXCEPTION);
+        throw new NullPointerException("Key is null");
     }
 
     /**
@@ -526,44 +524,60 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
 
         } else {
             // add new mapping
-            extracted(key, value, node);
+            extracted2(key, value, node);
         }
     }
 
-    private void extracted(K key, V value, Node<K, V> node) {
+    private void extracted2(K key, V value, Node<K, V> node) {
         while (true) {
             final int cmp = compare(key, node.getKey());
+
+            if (cmp == 0) {
+                // shouldn't happen
+                throw new IllegalArgumentException("Cannot store a duplicate key (\"" + key + "\") in this Map");
+            }
             if (cmp < 0) {
-                if (node.getLeft(KEY) == null) {
-                    final Node<K, V> newNode = new Node<>(key, value);
-                    leftOrRight(newNode, node, 0);
+                if (extracted(key, value, node)){
                     break;
                 }
                 node = node.getLeft(KEY);
-            } else if (cmp > 0) { // cmp > 0
-                if (node.getRight(KEY) == null) {
-                    final Node<K, V> newNode = new Node<>(key, value);
-                    leftOrRight(newNode, node, 1);
+            } else { // cmp > 0
+                if (extracted1(key, value, node)){
                     break;
                 }
                 node = node.getRight(KEY);
-            } else {
-                throw new IllegalArgumentException("Cannot store a duplicate key (\"" + key + "\") in this Map");
             }
         }
     }
 
-    private void leftOrRight(Node<K, V> newNode, Node<K, V> node, int leftOrRight){
-        insertValue(newNode);
-        if (leftOrRight == 0){
-            node.setLeft(newNode, KEY);
-        }else {
-            node.setRight(newNode, KEY);
-        }
-        newNode.setParent(node, KEY);
-        doRedBlackInsert(newNode, KEY);
-        grow();
+    private boolean extracted1(K key, V value, Node<K, V> node) {
+        if (node.getRight(KEY) == null) {
+            final Node<K, V> newNode = new Node<>(key, value);
 
+            insertValue(newNode);
+            node.setRight(newNode, KEY);
+            newNode.setParent(node, KEY);
+            doRedBlackInsert(newNode, KEY);
+            grow();
+
+            return true;
+        }
+        return false;
+    }
+
+    private boolean extracted(K key, V value, Node<K, V> node) {
+        if (node.getLeft(KEY) == null) {
+            final Node<K, V> newNode = new Node<>(key, value);
+
+            insertValue(newNode);
+            node.setLeft(newNode, KEY);
+            newNode.setParent(node, KEY);
+            doRedBlackInsert(newNode, KEY);
+            grow();
+
+            return true;
+        }
+        return false;
     }
 
     private V doRemoveKey(final Object key) {
@@ -926,8 +940,8 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         makeRed(currentNode, dataElement);
 
         while (currentNode != null
-            && currentNode != rootNode[dataElement.ordinal()]
-            && isRed(currentNode.getParent(dataElement), dataElement)) {
+                && currentNode != rootNode[dataElement.ordinal()]
+                && isRed(currentNode.getParent(dataElement), dataElement)) {
             if (currentNode.isLeftChild(dataElement)) {
                 final Node<K, V> y = getRightChild(getGrandParent(currentNode, dataElement), dataElement);
 
@@ -988,14 +1002,14 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
                 rotateLeft(currentNode, dataElement);
             }
 
-                    if (getGrandParent(currentNode, dataElement) != null) {
-                        try {
-                            rotateLeft(getGrandParent(currentNode, dataElement), dataElement);
-                        } catch (NullPointerException e) {
-                            throw new NullPointerException("element null");
-                        }
-                    }
+            makeBlack(getParent(currentNode, dataElement), dataElement);
+            makeRed(getGrandParent(currentNode, dataElement), dataElement);
 
+            if (getGrandParent(currentNode, dataElement) != null) {
+                try {
+                    rotateRight(getGrandParent(currentNode, dataElement), dataElement);
+                }catch (NullPointerException e) {
+                    throw new NullPointerException();
                 }
             }
         }
@@ -1012,8 +1026,14 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         for (final DataElement dataElement : DataElement.values()) {
             // if deleted node has both left and children, swap with
             // the next greater node
-            extracted(deletedNode, dataElement);
+            if (deletedNode.getLeft(dataElement) != null && deletedNode.getRight(dataElement) != null) {
+                try {
+                    swapPosition(nextGreater(deletedNode, dataElement), deletedNode, dataElement);
+                }catch (Exception e) {
+                    throw new NullPointerException("SwapPosition is null");
+                }
 
+            }
 
             final Node<K, V> replacement = deletedNode.getLeft(dataElement) != null ?
                     deletedNode.getLeft(dataElement) : deletedNode.getRight(dataElement);
@@ -1073,16 +1093,6 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         }
     }
 
-    private void extracted(Node<K, V> deletedNode, DataElement dataElement) {
-        try {
-            if (deletedNode.getLeft(dataElement) != null && deletedNode.getRight(dataElement) != null) {
-                swapPosition(nextGreater(deletedNode, dataElement), deletedNode, dataElement);
-            }
-        } catch (NullPointerException e) {
-            throw new NullPointerException("Null element");
-        }
-    }
-
     /**
      * Complicated red-black delete stuff. Based on Sun's TreeMap
      * implementation, though it's barely recognizable anymore. This
@@ -1093,69 +1103,40 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
      * @param dataElement  the KEY or VALUE int
      */
     private void doRedBlackDeleteFixup(final Node<K, V> replacementNode, final DataElement dataElement) {
-
         Node<K, V> currentNode = replacementNode;
+
         while (currentNode != rootNode[dataElement.ordinal()] && isBlack(currentNode, dataElement)) {
             if (currentNode != null) {
                 if (currentNode.isLeftChild(dataElement)) {
                     Node<K, V> siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
 
-
-                    siblingNode = getKvNode(dataElement, siblingNode, currentNode);
-
-                    currentNode = getKvNode1(dataElement, siblingNode, currentNode);
+                    currentNode = getNode(dataElement, siblingNode, currentNode);
                 } else {
                     Node<K, V> siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
 
-                    if (isRed(siblingNode, dataElement)) {
-                        makeBlack(siblingNode, dataElement);
-                        makeRed(getParent(currentNode, dataElement), dataElement);
-                        rotateRight(getParent(currentNode, dataElement), dataElement);
-
-                        siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
-                    }
-
-                    if (isBlack(getRightChild(siblingNode, dataElement), dataElement)
-                            && isBlack(getLeftChild(siblingNode, dataElement), dataElement)) {
-                        makeRed(siblingNode, dataElement);
-
-                        currentNode = getParent(currentNode, dataElement);
-                    } else {
-                        siblingNode = getSiblingNode(dataElement, siblingNode, currentNode);
-
-                        copyColor(getParent(currentNode, dataElement), siblingNode, dataElement);
-                        makeBlack(getParent(currentNode, dataElement), dataElement);
-                        makeBlack(getLeftChild(siblingNode, dataElement), dataElement);
-                        rotateRight(getParent(currentNode, dataElement), dataElement);
-
-                        currentNode = rootNode[dataElement.ordinal()];
-                    }
+                    currentNode = getKvNode2(dataElement, siblingNode, currentNode);
                 }
             }
-
         }
-        makeBlack(currentNode, dataElement);
 
+        makeBlack(currentNode, dataElement);
     }
 
-    private Node<K, V> getSiblingNode(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
-        if (isBlack(getLeftChild(siblingNode, dataElement), dataElement)) {
-            makeBlack(getRightChild(siblingNode, dataElement), dataElement);
-            makeRed(siblingNode, dataElement);
+    private Node<K, V> getKvNode2(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
+        if (isRed(siblingNode, dataElement)) {
+            makeBlack(siblingNode, dataElement);
+            makeRed(getParent(currentNode, dataElement), dataElement);
             try {
-                rotateLeft(siblingNode, dataElement);
-            } catch (NullPointerException e) {
-                throw new NullPointerException("error null pointer");
+                rotateRight(getParent(currentNode, dataElement), dataElement);
+            }catch (Exception e) {
+                throw new NullPointerException("Rotate right is null");
             }
 
             siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
         }
-        return siblingNode;
-    }
 
-    private Node<K, V> getKvNode1(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
-        if (isBlack(getLeftChild(siblingNode, dataElement), dataElement)
-            && isBlack(getRightChild(siblingNode, dataElement), dataElement)) {
+        if (isBlack(getRightChild(siblingNode, dataElement), dataElement)
+                && isBlack(getLeftChild(siblingNode, dataElement), dataElement)) {
             makeRed(siblingNode, dataElement);
 
             currentNode = getParent(currentNode, dataElement);
@@ -1166,15 +1147,26 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
     }
 
     private Node<K, V> getCurrentNode(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
-        siblingNode = getNode(dataElement, siblingNode, currentNode);
+        if (isBlack(getLeftChild(siblingNode, dataElement), dataElement)) {
+            makeBlack(getRightChild(siblingNode, dataElement), dataElement);
+            makeRed(siblingNode, dataElement);
+            try {
+                rotateLeft(siblingNode, dataElement);
+            }catch (NullPointerException e) {
+                throw new NullPointerException("Rotate is null");
+            }
+
+
+            siblingNode = getLeftChild(getParent(currentNode, dataElement), dataElement);
+        }
 
         copyColor(getParent(currentNode, dataElement), siblingNode, dataElement);
         makeBlack(getParent(currentNode, dataElement), dataElement);
-        makeBlack(getRightChild(siblingNode, dataElement), dataElement);
+        makeBlack(getLeftChild(siblingNode, dataElement), dataElement);
         try {
-            rotateLeft(getParent(currentNode, dataElement), dataElement);
-        } catch (NullPointerException e) {
-            throw new NullPointerException("null element");
+            rotateRight(siblingNode, dataElement);
+        }catch (NullPointerException e) {
+            throw new NullPointerException("Rotate is null");
         }
 
         currentNode = rootNode[dataElement.ordinal()];
@@ -1182,38 +1174,54 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
     }
 
     private Node<K, V> getNode(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
-
-        if (isBlack(getRightChild(siblingNode, dataElement), dataElement)) {
-            makeBlack(getLeftChild(siblingNode, dataElement), dataElement);
-            makeRed(siblingNode, dataElement);
-            try {
-                rotateRight(siblingNode, dataElement);
-
-            } catch (NullPointerException e) {
-                throw new NullPointerException("null pointer");
-
-            }
-
-            siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
-        }
-        return siblingNode;
-    }
-
-    private Node<K, V> getKvNode(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
         if (isRed(siblingNode, dataElement)) {
             makeBlack(siblingNode, dataElement);
             makeRed(getParent(currentNode, dataElement), dataElement);
             try {
                 rotateLeft(getParent(currentNode, dataElement), dataElement);
-            } catch (NullPointerException e) {
-                throw new NullPointerException("null element");
+            }catch (NullPointerException e) {
+                throw new NullPointerException("Rotate left is null");
             }
 
 
             siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
         }
-        return siblingNode;
 
+        if (isBlack(getLeftChild(siblingNode, dataElement), dataElement)
+                && isBlack(getRightChild(siblingNode, dataElement), dataElement)) {
+            makeRed(siblingNode, dataElement);
+
+            currentNode = getParent(currentNode, dataElement);
+        } else {
+            currentNode = getKvNode(dataElement, siblingNode, currentNode);
+        }
+        return currentNode;
+    }
+
+    private Node<K, V> getKvNode(DataElement dataElement, Node<K, V> siblingNode, Node<K, V> currentNode) {
+        if (isBlack(getRightChild(siblingNode, dataElement), dataElement)) {
+            makeBlack(getLeftChild(siblingNode, dataElement), dataElement);
+            makeRed(siblingNode, dataElement);
+            try {
+                rotateRight(siblingNode, dataElement);
+            }catch (NullPointerException e) {
+                throw new NullPointerException("Rotate is null");
+            }
+
+            siblingNode = getRightChild(getParent(currentNode, dataElement), dataElement);
+        }
+
+        copyColor(getParent(currentNode, dataElement), siblingNode, dataElement);
+        makeBlack(getParent(currentNode, dataElement), dataElement);
+        makeBlack(getRightChild(siblingNode, dataElement), dataElement);
+        try {
+            rotateLeft(getParent(currentNode, dataElement), dataElement);
+        }catch (Exception e) {
+            throw new NullPointerException("Rotate left is null");
+        }
+
+        currentNode = rootNode[dataElement.ordinal()];
+        return currentNode;
     }
 
     /**
@@ -1241,8 +1249,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         // Swap, handling special cases of one being the other's parent.
         extracted(x, y, dataElement, yFormerParent, yWasLeftChild, xFormerRightChild, xFormerLeftChild);
 
-
-        extracted1(x, y, dataElement, xFormerParent, xWasLeftChild, yFormerRightChild, yFormerLeftChild);
+        extracted(y, x, dataElement, xFormerParent, xWasLeftChild, yFormerRightChild, yFormerLeftChild);
 
         // Fix children's parent pointers
         if (x.getLeft(dataElement) != null) {
@@ -1268,65 +1275,6 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
             rootNode[dataElement.ordinal()] = y;
         } else if (rootNode[dataElement.ordinal()] == y) {
             rootNode[dataElement.ordinal()] = x;
-        }
-    }
-
-    private static <K extends Comparable<K>, V extends Comparable<V>> void extracted1(Node<K, V> x, Node<K, V> y, DataElement dataElement, Node<K, V> xFormerParent, boolean xWasLeftChild, Node<K, V> yFormerRightChild, Node<K, V> yFormerLeftChild) {
-        if (y == xFormerParent) { // y was x's parent
-            y.setParent(x, dataElement);
-
-            if (xWasLeftChild) {
-                x.setLeft(y, dataElement);
-                x.setRight(yFormerRightChild, dataElement);
-            } else {
-                x.setRight(y, dataElement);
-                x.setLeft(yFormerLeftChild, dataElement);
-            }
-        } else {
-            y.setParent(xFormerParent, dataElement);
-
-            if (xFormerParent != null) {
-                if (xWasLeftChild) {
-                    xFormerParent.setLeft(y, dataElement);
-                } else {
-                    xFormerParent.setRight(y, dataElement);
-                }
-            }
-
-            x.setLeft(yFormerLeftChild, dataElement);
-            x.setRight(yFormerRightChild, dataElement);
-        }
-    }
-
-
-    private static <K extends Comparable<K>, V extends Comparable<V>> void extracted(Node<K, V> x, Node<K, V> y, DataElement dataElement, Node<K, V> yFormerParent, boolean yWasLeftChild, Node<K, V> xFormerRightChild, Node<K, V> xFormerLeftChild) {
-        if (x == yFormerParent) { // x was y's parent
-            x.setParent(y, dataElement);
-
-            extracted(x, y, dataElement, yWasLeftChild, xFormerRightChild, xFormerLeftChild);
-        } else {
-            x.setParent(yFormerParent, dataElement);
-
-            if (yFormerParent != null) {
-                if (yWasLeftChild) {
-                    yFormerParent.setLeft(x, dataElement);
-                } else {
-                    yFormerParent.setRight(x, dataElement);
-                }
-            }
-
-            y.setLeft(xFormerLeftChild, dataElement);
-            y.setRight(xFormerRightChild, dataElement);
-        }
-    }
-
-    private static <K extends Comparable<K>, V extends Comparable<V>> void extracted(Node<K, V> x, Node<K, V> y, DataElement dataElement, boolean yWasLeftChild, Node<K, V> xFormerRightChild, Node<K, V> xFormerLeftChild) {
-        if (yWasLeftChild) {
-            y.setLeft(x, dataElement);
-            y.setRight(xFormerRightChild, dataElement);
-        } else {
-            y.setRight(x, dataElement);
-            y.setLeft(xFormerLeftChild, dataElement);
         }
     }
 
@@ -1455,7 +1403,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
 
             if (cmp == 0) {
                 throw new IllegalArgumentException(
-                    "Cannot store a duplicate value (\"" + newNode.getData(VALUE) + "\") in this Map");
+                        "Cannot store a duplicate value (\"" + newNode.getData(VALUE) + "\") in this Map");
             }
             if (cmp < 0) {
                 if (node.getLeft(VALUE) == null) {
@@ -1553,8 +1501,8 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
             final Object key = it.next();
             final Object value = it.getValue();
             buf.append(key == this ? "(this Map)" : key)
-                .append('=')
-                .append(value == this ? "(this Map)" : value);
+                    .append('=')
+                    .append(value == this ? "(this Map)" : value);
 
             hasNext = it.hasNext();
             if (hasNext) {
@@ -1568,12 +1516,12 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
 
     private MapIterator<?, ?> getMapIterator(final DataElement dataElement) {
         switch (dataElement) {
-        case KEY:
-            return new ViewMapIterator(KEY);
-        case VALUE:
-            return new InverseViewMapIterator(VALUE);
-        default:
-            throw new IllegalArgumentException();
+            case KEY:
+                return new ViewMapIterator(KEY);
+            case VALUE:
+                return new InverseViewMapIterator(VALUE);
+            default:
+                throw new IllegalArgumentException();
         }
     }
 
@@ -2033,12 +1981,12 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
 
         private Object getData(final DataElement dataElement) {
             switch (dataElement) {
-            case KEY:
-                return getKey();
-            case VALUE:
-                return getValue();
-            default:
-                throw new IllegalArgumentException();
+                case KEY:
+                    return getKey();
+                case VALUE:
+                    return getValue();
+                default:
+                    throw new IllegalArgumentException();
             }
         }
 
@@ -2267,7 +2215,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         @Override
         public V firstKey() {
             if (TreeBidiMap.this.nodeCount == 0) {
-                throw new NoSuchElementException(MAP_EMPTY_EXCEPTION);
+                throw new NoSuchElementException("Map is empty");
             }
             Node<K, V> leastNode = leastNode(TreeBidiMap.this.rootNode[VALUE.ordinal()], VALUE);
             if (leastNode != null && leastNode.getValue() != null) {
@@ -2279,7 +2227,7 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
         @Override
         public V lastKey() {
             if (TreeBidiMap.this.nodeCount == 0) {
-                throw new NoSuchElementException(MAP_EMPTY_EXCEPTION);
+                throw new NoSuchElementException("Map is empty");
             }
 
             Node<K, V> greatestNode = greatestNode(TreeBidiMap.this.rootNode[VALUE.ordinal()], VALUE);
