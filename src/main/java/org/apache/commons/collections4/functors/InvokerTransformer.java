@@ -35,6 +35,8 @@ import org.apache.commons.collections4.Transformer;
  * @since 3.0
  */
 public class InvokerTransformer<I, O> implements Transformer<I, O> {
+    private static final String INVOKER_TRANSFORMER = "InvokerTransformer: The method '";
+    private static final String ON = "' on '";
 
     /** The method name to call */
     private final String iMethodName;
@@ -127,13 +129,13 @@ public class InvokerTransformer<I, O> implements Transformer<I, O> {
             final Method method = cls.getMethod(iMethodName, iParamTypes);
             return (O) method.invoke(input, iArgs);
         } catch (final NoSuchMethodException ex) {
-            throw new FunctorException("InvokerTransformer: The method '" + iMethodName + "' on '" +
+            throw new FunctorException(INVOKER_TRANSFORMER + iMethodName + ON +
                                        input.getClass() + "' does not exist");
         } catch (final IllegalAccessException ex) {
-            throw new FunctorException("InvokerTransformer: The method '" + iMethodName + "' on '" +
+            throw new FunctorException(INVOKER_TRANSFORMER + iMethodName + ON +
                                        input.getClass() + "' cannot be accessed");
         } catch (final InvocationTargetException ex) {
-            throw new FunctorException("InvokerTransformer: The method '" + iMethodName + "' on '" +
+            throw new FunctorException(INVOKER_TRANSFORMER + iMethodName + ON +
                                        input.getClass() + "' threw an exception", ex);
         }
     }

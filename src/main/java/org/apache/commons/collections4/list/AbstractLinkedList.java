@@ -45,7 +45,7 @@ import org.apache.commons.collections4.OrderedIterator;
  * @since 3.0
  */
 public abstract class AbstractLinkedList<E> implements List<E> {
-
+    private static final String INDEX = "index (";
     /*
      * Implementation notes:
      * - a standard circular doubly-linked list
@@ -552,15 +552,15 @@ public abstract class AbstractLinkedList<E> implements List<E> {
         // Check the index is within the bounds
         if (index < 0) {
             throw new IndexOutOfBoundsException("Couldn't get the node: " +
-                    "index (" + index + ") less than zero.");
+                    INDEX + index + ") less than zero.");
         }
         if (!endMarkerAllowed && index == size) {
             throw new IndexOutOfBoundsException("Couldn't get the node: " +
-                    "index (" + index + ") is the size of the list.");
+                    INDEX + index + ") is the size of the list.");
         }
         if (index > size) {
             throw new IndexOutOfBoundsException("Couldn't get the node: " +
-                    "index (" + index + ") greater than the size of the " +
+                    INDEX + index + ") greater than the size of the " +
                     "list (" + size + ").");
         }
         // Search the list and get the node
