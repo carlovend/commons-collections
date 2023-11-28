@@ -37,7 +37,7 @@ public class NullComparator<E> implements Comparator<E>, Serializable {
     /**
      *  The comparator to use when comparing two non-{@code null} objects.
      **/
-    private final Comparator<? super E> nonNullComparator;
+    private final transient Comparator<? super E>  nonNullComparator;
 
     /**
      *  Specifies whether a {@code null} are compared as higher than

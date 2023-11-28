@@ -44,7 +44,7 @@ public class TransformedCollection<E> extends AbstractCollectionDecorator<E> {
     private static final long serialVersionUID = 8692300188161871514L;
 
     /** The transformer to use */
-    protected final Transformer<? super E, ? extends E> transformer;
+    protected final transient Transformer<? super E, ? extends E> transformer;
 
     /**
      * Factory method to create a transforming collection.

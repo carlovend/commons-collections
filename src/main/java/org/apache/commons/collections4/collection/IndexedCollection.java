@@ -53,10 +53,10 @@ public class IndexedCollection<K, C> extends AbstractCollectionDecorator<C> {
     private static final long serialVersionUID = -5512610452568370038L;
 
     /** The {@link Transformer} for generating index keys. */
-    private final Transformer<C, K> keyTransformer;
+    private final transient Transformer<C, K> keyTransformer;
 
     /** The map of indexes to collected objects. */
-    private final MultiMap<K, C> index;
+    private final transient MultiMap<K, C> index;
 
     /** The uniqueness constraint for the index. */
     private final boolean uniqueIndex;
