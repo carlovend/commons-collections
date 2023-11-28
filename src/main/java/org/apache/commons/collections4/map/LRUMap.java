@@ -65,7 +65,11 @@ import org.apache.commons.collections4.BoundedMap;
  */
 public class LRUMap<K, V>
         extends AbstractLinkedMap<K, V> implements BoundedMap<K, V>, Serializable, Cloneable {
-
+    private static final String KEYIMMUTABLE = "This should not occur if your keys are immutable, and you have used synchronization properly.";
+    private static final String MAXSIZE = " maxSize=";
+    private static final String SIZE = " size=";
+    private static final String VALUE = " value=";
+    private static final String KEY = " key=";
     /** Serialisation version */
     private static final long serialVersionUID = -612114643488955218L;
     /** Default maximum size */
@@ -269,7 +273,7 @@ public class LRUMap<K, V>
             // remove
             if (entry.before == null) {
                 throw new IllegalStateException("Entry.before is null." +
-                    " This should not occur if your keys are immutable, and you have used synchronization properly.");
+                        KEYIMMUTABLE);
             }
             entry.before.after = entry.after;
             entry.after.before = entry.before;
@@ -280,7 +284,7 @@ public class LRUMap<K, V>
             header.before = entry;
         } else if (entry == header) {
             throw new IllegalStateException("Can't move header to MRU" +
-                    " This should not occur if your keys are immutable, and you have used synchronization properly.");
+                    KEYIMMUTABLE);
         }
     }
 
@@ -331,7 +335,7 @@ public class LRUMap<K, V>
                     assert header != null;
                     throw new IllegalStateException(
                         "Entry.after=null, header.after=" + header.after + " header.before=" + header.before +
-                        " key=" + key + " value=" + value + " size=" + size + " maxSize=" + maxSize +
+                                KEY + key + VALUE + value + SIZE + size + MAXSIZE + maxSize +
                         " This should not occur if your keys are immutable and you used synchronization properly.");
                 }
             } else {
@@ -342,7 +346,7 @@ public class LRUMap<K, V>
                 if (reuse == null) {
                     throw new IllegalStateException(
                         "reuse=null, header.after=" + header.after + " header.before=" + header.before +
-                        " key=" + key + " value=" + value + " size=" + size + " maxSize=" + maxSize +
+                                KEY + key + VALUE + value + SIZE + size + MAXSIZE + maxSize +
                         " This should not occur if your keys are immutable and you used synchronization properly.");
                 }
                 reuseMapping(reuse, hashIndex, hashCode, key, value);
@@ -382,7 +386,7 @@ public class LRUMap<K, V>
             if (loop == null) {
                 throw new IllegalStateException(
                     "Entry.next=null, data[removeIndex]=" + data[removeIndex] + " previous=" + previous +
-                    " key=" + key + " value=" + value + " size=" + size + " maxSize=" + maxSize +
+                            KEY + key + VALUE + value + SIZE + size + MAXSIZE + maxSize +
                     " This should not occur if your keys are immutable, and you have used synchronization properly.");
             }
 
@@ -394,7 +398,7 @@ public class LRUMap<K, V>
         } catch (final NullPointerException ex) {
             throw new IllegalStateException(
                     "NPE, entry=" + entry + " entryIsHeader=" + (entry==header) +
-                    " key=" + key + " value=" + value + " size=" + size + " maxSize=" + maxSize +
+                            KEY + key + VALUE + value + SIZE + size + MAXSIZE + maxSize +
                     " This should not occur if your keys are immutable, and you have used synchronization properly.");
         }
     }

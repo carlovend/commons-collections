@@ -45,7 +45,10 @@ import org.apache.commons.collections4.Trie;
  * @since 4.0
  */
 public abstract class AbstractPatriciaTrie<K, V> extends AbstractBitwiseTrie<K, V> {
-
+    private static final String LOOKUP = "invalid lookup: ";
+    private static final String PARENT = "parent=";
+    private static final String LEFT = "left=";
+    private static final String RIGHT = "right=";
     private static final long serialVersionUID = 5155253417231339498L;
 
     /** The root node of the {@link org.apache.commons.collections4.Trie}. */
@@ -927,7 +930,7 @@ public abstract class AbstractPatriciaTrie<K, V> extends AbstractBitwiseTrie<K, 
         }
 
         // we should have exited above.
-        throw new IllegalStateException("invalid lookup: " + key);
+        throw new IllegalStateException(LOOKUP + key);
     }
 
     /**
@@ -988,7 +991,7 @@ public abstract class AbstractPatriciaTrie<K, V> extends AbstractBitwiseTrie<K, 
         }
 
         // we should have exited above.
-        throw new IllegalStateException("invalid lookup: " + key);
+        throw new IllegalStateException(LOOKUP + key);
     }
 
     /**
@@ -1042,7 +1045,7 @@ public abstract class AbstractPatriciaTrie<K, V> extends AbstractBitwiseTrie<K, 
         }
 
         // we should have exited above.
-        throw new IllegalStateException("invalid lookup: " + key);
+        throw new IllegalStateException(LOOKUP + key);
     }
 
     /**
@@ -1088,7 +1091,7 @@ public abstract class AbstractPatriciaTrie<K, V> extends AbstractBitwiseTrie<K, 
         }
 
         // we should have exited above.
-        throw new IllegalStateException("invalid lookup: " + key);
+        throw new IllegalStateException(LOOKUP + key);
     }
 
     /**
@@ -1342,34 +1345,34 @@ public abstract class AbstractPatriciaTrie<K, V> extends AbstractBitwiseTrie<K, 
 
             if (parent != null) {
                 if (parent.bitIndex == -1) {
-                    buffer.append("parent=").append("ROOT");
+                    buffer.append(PARENT).append("ROOT");
                 } else {
-                    buffer.append("parent=").append(parent.getKey()).append(" [").append(parent.bitIndex).append("]");
+                    buffer.append(PARENT).append(parent.getKey()).append(" [").append(parent.bitIndex).append("]");
                 }
             } else {
-                buffer.append("parent=").append("null");
+                buffer.append(PARENT).append("null");
             }
             buffer.append(", ");
 
             if (left != null) {
                 if (left.bitIndex == -1) {
-                    buffer.append("left=").append("ROOT");
+                    buffer.append(LEFT).append("ROOT");
                 } else {
-                    buffer.append("left=").append(left.getKey()).append(" [").append(left.bitIndex).append("]");
+                    buffer.append(LEFT).append(left.getKey()).append(" [").append(left.bitIndex).append("]");
                 }
             } else {
-                buffer.append("left=").append("null");
+                buffer.append(LEFT).append("null");
             }
             buffer.append(", ");
 
             if (right != null) {
                 if (right.bitIndex == -1) {
-                    buffer.append("right=").append("ROOT");
+                    buffer.append(RIGHT).append("ROOT");
                 } else {
-                    buffer.append("right=").append(right.getKey()).append(" [").append(right.bitIndex).append("]");
+                    buffer.append(RIGHT).append(right.getKey()).append(" [").append(right.bitIndex).append("]");
                 }
             } else {
-                buffer.append("right=").append("null");
+                buffer.append(RIGHT).append("null");
             }
             buffer.append(", ");
 
