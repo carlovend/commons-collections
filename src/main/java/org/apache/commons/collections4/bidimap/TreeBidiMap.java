@@ -526,42 +526,43 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
 
         } else {
             // add new mapping
-            while (true) {
-                final int cmp = compare(key, node.getKey());
+            extracted(key, value, node);
+        }
+    }
 
-                if (cmp == 0) {
-                    // shouldn't happen
-                    throw new IllegalArgumentException("Cannot store a duplicate key (\"" + key + "\") in this Map");
+    private void extracted(K key, V value, Node<K, V> node) {
+        while (true) {
+            final int cmp = compare(key, node.getKey());
+            if (cmp < 0) {
+                if (node.getLeft(KEY) == null) {
+                    final Node<K, V> newNode = new Node<>(key, value);
+                    leftOrRight(newNode, node, 0);
+                    break;
                 }
-                if (cmp < 0) {
-                    if (node.getLeft(KEY) == null) {
-                        final Node<K, V> newNode = new Node<>(key, value);
-
-                        insertValue(newNode);
-                        node.setLeft(newNode, KEY);
-                        newNode.setParent(node, KEY);
-                        doRedBlackInsert(newNode, KEY);
-                        grow();
-
-                        break;
-                    }
-                    node = node.getLeft(KEY);
-                } else { // cmp > 0
-                    if (node.getRight(KEY) == null) {
-                        final Node<K, V> newNode = new Node<>(key, value);
-
-                        insertValue(newNode);
-                        node.setRight(newNode, KEY);
-                        newNode.setParent(node, KEY);
-                        doRedBlackInsert(newNode, KEY);
-                        grow();
-
-                        break;
-                    }
-                    node = node.getRight(KEY);
+                node = node.getLeft(KEY);
+            } else if(cmp > 0) { // cmp > 0
+                if (node.getRight(KEY) == null) {
+                    final Node<K, V> newNode = new Node<>(key, value);
+                    leftOrRight(newNode, node, 1);
+                    break;
                 }
+                node = node.getRight(KEY);
+            } else {
+                throw new IllegalArgumentException("Cannot store a duplicate key (\"" + key + "\") in this Map");
             }
         }
+    }
+
+    private void leftOrRight(Node<K, V> newNode, Node<K, V> node, int leftOrRight){
+        insertValue(newNode);
+        if(leftOrRight == 0){
+            node.setLeft(newNode, KEY);
+        }else{
+            node.setRight(newNode, KEY);
+        }
+        newNode.setParent(node, KEY);
+        doRedBlackInsert(newNode, KEY);
+        grow();
     }
 
     private V doRemoveKey(final Object key) {
@@ -1160,55 +1161,9 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
                 y.getParent(dataElement) != null && y == y.getParent(dataElement).getLeft(dataElement);
 
         // Swap, handling special cases of one being the other's parent.
-        if (x == yFormerParent) { // x was y's parent
-            x.setParent(y, dataElement);
+        extracted(x, y, dataElement, yFormerParent, yWasLeftChild, xFormerRightChild, xFormerLeftChild);
 
-            if (yWasLeftChild) {
-                y.setLeft(x, dataElement);
-                y.setRight(xFormerRightChild, dataElement);
-            } else {
-                y.setRight(x, dataElement);
-                y.setLeft(xFormerLeftChild, dataElement);
-            }
-        } else {
-            x.setParent(yFormerParent, dataElement);
-
-            if (yFormerParent != null) {
-                if (yWasLeftChild) {
-                    yFormerParent.setLeft(x, dataElement);
-                } else {
-                    yFormerParent.setRight(x, dataElement);
-                }
-            }
-
-            y.setLeft(xFormerLeftChild, dataElement);
-            y.setRight(xFormerRightChild, dataElement);
-        }
-
-        if (y == xFormerParent) { // y was x's parent
-            y.setParent(x, dataElement);
-
-            if (xWasLeftChild) {
-                x.setLeft(y, dataElement);
-                x.setRight(yFormerRightChild, dataElement);
-            } else {
-                x.setRight(y, dataElement);
-                x.setLeft(yFormerLeftChild, dataElement);
-            }
-        } else {
-            y.setParent(xFormerParent, dataElement);
-
-            if (xFormerParent != null) {
-                if (xWasLeftChild) {
-                    xFormerParent.setLeft(y, dataElement);
-                } else {
-                    xFormerParent.setRight(y, dataElement);
-                }
-            }
-
-            x.setLeft(yFormerLeftChild, dataElement);
-            x.setRight(yFormerRightChild, dataElement);
-        }
+        extracted1(x, y, dataElement, xFormerParent, xWasLeftChild, yFormerRightChild, yFormerLeftChild);
 
         // Fix children's parent pointers
         if (x.getLeft(dataElement) != null) {
@@ -1234,6 +1189,64 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
             rootNode[dataElement.ordinal()] = y;
         } else if (rootNode[dataElement.ordinal()] == y) {
             rootNode[dataElement.ordinal()] = x;
+        }
+    }
+
+    private static <K extends Comparable<K>, V extends Comparable<V>> void extracted1(Node<K, V> x, Node<K, V> y, DataElement dataElement, Node<K, V> xFormerParent, boolean xWasLeftChild, Node<K, V> yFormerRightChild, Node<K, V> yFormerLeftChild) {
+        if (y == xFormerParent) { // y was x's parent
+            y.setParent(x, dataElement);
+
+            if (xWasLeftChild) {
+                x.setLeft(y, dataElement);
+                x.setRight(yFormerRightChild, dataElement);
+            } else {
+                x.setRight(y, dataElement);
+                x.setLeft(yFormerLeftChild, dataElement);
+            }
+        } else {
+            y.setParent(xFormerParent, dataElement);
+
+            if (xFormerParent != null) {
+                if (xWasLeftChild) {
+                    xFormerParent.setLeft(y, dataElement);
+                } else {
+                    xFormerParent.setRight(y, dataElement);
+                }
+            }
+
+            x.setLeft(yFormerLeftChild, dataElement);
+            x.setRight(yFormerRightChild, dataElement);
+        }
+    }
+
+    private static <K extends Comparable<K>, V extends Comparable<V>> void extracted(Node<K, V> x, Node<K, V> y, DataElement dataElement, Node<K, V> yFormerParent, boolean yWasLeftChild, Node<K, V> xFormerRightChild, Node<K, V> xFormerLeftChild) {
+        if (x == yFormerParent) { // x was y's parent
+            x.setParent(y, dataElement);
+
+            extracted(x, y, dataElement, yWasLeftChild, xFormerRightChild, xFormerLeftChild);
+        } else {
+            x.setParent(yFormerParent, dataElement);
+
+            if (yFormerParent != null) {
+                if (yWasLeftChild) {
+                    yFormerParent.setLeft(x, dataElement);
+                } else {
+                    yFormerParent.setRight(x, dataElement);
+                }
+            }
+
+            y.setLeft(xFormerLeftChild, dataElement);
+            y.setRight(xFormerRightChild, dataElement);
+        }
+    }
+
+    private static <K extends Comparable<K>, V extends Comparable<V>> void extracted(Node<K, V> x, Node<K, V> y, DataElement dataElement, boolean yWasLeftChild, Node<K, V> xFormerRightChild, Node<K, V> xFormerLeftChild) {
+        if (yWasLeftChild) {
+            y.setLeft(x, dataElement);
+            y.setRight(xFormerRightChild, dataElement);
+        } else {
+            y.setRight(x, dataElement);
+            y.setLeft(xFormerLeftChild, dataElement);
         }
     }
 
