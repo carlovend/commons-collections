@@ -1516,12 +1516,12 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
 
     private MapIterator<?, ?> getMapIterator(final DataElement dataElement) {
         switch (dataElement) {
-            case KEY:
-                return new ViewMapIterator(KEY);
-            case VALUE:
-                return new InverseViewMapIterator(VALUE);
-            default:
-                throw new IllegalArgumentException();
+        case KEY:
+            return new ViewMapIterator(KEY);
+        case VALUE:
+            return new InverseViewMapIterator(VALUE);
+        default:
+            throw new IllegalArgumentException();
         }
     }
 
@@ -1981,12 +1981,12 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
 
         private Object getData(final DataElement dataElement) {
             switch (dataElement) {
-                case KEY:
-                    return getKey();
-                case VALUE:
-                    return getValue();
-                default:
-                    throw new IllegalArgumentException();
+            case KEY:
+                return getKey();
+            case VALUE:
+                return getValue();
+            default:
+                throw new IllegalArgumentException();
             }
         }
 
