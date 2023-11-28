@@ -104,6 +104,7 @@ public class MultiMapUtils {
      * @param key  the key to look up
      * @return the Collection in the {@link MultiValuedMap}, or null if input map is null
      */
+    @javax.annotation.Nullable
     public static <K, V> Collection<V> getCollection(final MultiValuedMap<K, V> map, final K key) {
         if (map != null) {
             return map.get(key);
@@ -123,6 +124,7 @@ public class MultiMapUtils {
      * @param key  the key to look up
      * @return the Collection in the {@link MultiValuedMap} as List, or null if input map is null
      */
+    @javax.annotation.Nullable
     public static <K, V> List<V> getValuesAsList(final MultiValuedMap<K, V> map, final K key) {
         if (map != null) {
             final Collection<V> col = map.get(key);
