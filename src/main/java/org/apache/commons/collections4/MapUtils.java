@@ -877,7 +877,6 @@ public class MapUtils {
      * @param key the key to look up
      * @return the value in the Map as a Map, {@code null} if null map input
      */
-    @javax.annotation.Nullable
     public static <K> Map<?, ?> getMap(final Map<? super K, ?> map, final K key) {
         if (map != null) {
             final Object answer = map.get(key);
@@ -1694,8 +1693,8 @@ public class MapUtils {
                 map.put((K) sub[0], (V) sub[1]);
             }
         } else {
-            int i = 0;
-            while (i< array.length-1){
+            for (int i = 0; i < array.length - 1;) {
+                // these casts can fail if array has incorrect types
                 map.put((K) array[i++], (V) array[i++]);
             }
         }

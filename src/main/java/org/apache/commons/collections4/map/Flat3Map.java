@@ -81,8 +81,7 @@ import org.apache.commons.collections4.iterators.EmptyMapIterator;
  * @since 3.0
  */
 public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneable {
-    private static final String INVALIDMAP = "Invalid map index: ";
-    private static final String THISMAP = "(this Map)";
+
     /** Serialization version */
     private static final long serialVersionUID = -6701087419741928296L;
 
@@ -418,7 +417,7 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
         case 0:
             break;
         default:
-            throw new IllegalStateException(INVALIDMAP + size);
+            throw new IllegalStateException("Invalid map index: " + size);
         }
 
         size = 0;
@@ -681,7 +680,7 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
             case 1:
                 return parent.key1;
             }
-            throw new IllegalStateException(INVALIDMAP + nextIndex);
+            throw new IllegalStateException("Invalid map index: " + nextIndex);
         }
 
         @Override
@@ -697,7 +696,7 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
             case 1:
                 return parent.value1;
             }
-            throw new IllegalStateException(INVALIDMAP + nextIndex);
+            throw new IllegalStateException("Invalid map index: " + nextIndex);
         }
 
         @Override
@@ -717,7 +716,7 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
                 parent.value1 = value;
                 break;
             default:
-                throw new IllegalStateException(INVALIDMAP + nextIndex);
+                throw new IllegalStateException("Invalid map index: " + nextIndex);
             }
             return old;
         }
@@ -836,7 +835,7 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
             case 1:
                 return parent.key1;
             }
-            throw new IllegalStateException(INVALIDMAP + index);
+            throw new IllegalStateException("Invalid map index: " + index);
         }
 
         @Override
@@ -852,7 +851,7 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
             case 1:
                 return parent.value1;
             }
-            throw new IllegalStateException(INVALIDMAP + index);
+            throw new IllegalStateException("Invalid map index: " + index);
         }
 
         @Override
@@ -872,7 +871,7 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
                 parent.value1 = value;
                 break;
             default:
-                throw new IllegalStateException(INVALIDMAP + index);
+                throw new IllegalStateException("Invalid map index: " + index);
             }
             return old;
         }
@@ -1234,7 +1233,7 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
         case 0:
             break;
         default:
-            throw new IllegalStateException(INVALIDMAP + size);
+            throw new IllegalStateException("Invalid map index: " + size);
         }
         return total;
     }
@@ -1256,23 +1255,23 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
         buf.append('{');
         switch (size) {  // drop through
         case 3:
-            buf.append(key3 == this ? THISMAP : key3);
+            buf.append(key3 == this ? "(this Map)" : key3);
             buf.append('=');
-            buf.append(value3 == this ? THISMAP : value3);
+            buf.append(value3 == this ? "(this Map)" : value3);
             buf.append(CollectionUtils.COMMA);
         case 2:
-            buf.append(key2 == this ? THISMAP : key2);
+            buf.append(key2 == this ? "(this Map)" : key2);
             buf.append('=');
-            buf.append(value2 == this ? THISMAP : value2);
+            buf.append(value2 == this ? "(this Map)" : value2);
             buf.append(CollectionUtils.COMMA);
         case 1:
-            buf.append(key1 == this ? THISMAP : key1);
+            buf.append(key1 == this ? "(this Map)" : key1);
             buf.append('=');
-            buf.append(value1 == this ? THISMAP : value1);
+            buf.append(value1 == this ? "(this Map)" : value1);
             break;
         // case 0: has already been dealt with
         default:
-            throw new IllegalStateException(INVALIDMAP + size);
+            throw new IllegalStateException("Invalid map index: " + size);
         }
         buf.append('}');
         return buf.toString();

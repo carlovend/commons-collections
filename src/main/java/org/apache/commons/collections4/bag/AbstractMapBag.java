@@ -458,8 +458,8 @@ public abstract class AbstractMapBag<E> implements Bag<E> {
      */
     @Override
     public <T> T[] toArray(T[] array) {
-        final int sizes = size();
-        if (array.length < sizes) {
+        final int size = size();
+        if (array.length < size) {
             @SuppressWarnings("unchecked") // safe as both are of type T
             final T[] unchecked = (T[]) Array.newInstance(array.getClass().getComponentType(), size);
             array = unchecked;
