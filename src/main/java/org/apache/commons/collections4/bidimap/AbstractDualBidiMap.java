@@ -343,7 +343,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
         private static final long serialVersionUID = 4621510560119690639L;
 
         /** The parent map */
-        protected final AbstractDualBidiMap<K, V> parent;
+        protected final transient  AbstractDualBidiMap<K, V> parent;
 
         /**
          * Constructor.
@@ -482,6 +482,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
      */
     protected static class KeySetIterator<K> extends AbstractIteratorDecorator<K> {
 
+        public static final String ITERATOR_REMOVE_CAN_ONLY_BE_CALLED_ONCE_AFTER_NEXT = "Iterator remove() can only be called once after next()";
         /** The parent map */
         protected final AbstractDualBidiMap<K, ?> parent;
 
@@ -512,6 +513,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
         public void remove() {
             if (!canRemove) {
                 throw new IllegalStateException(ITERATORREMOVE);
+
             }
             final Object value = parent.normalMap.get(lastKey);
             super.remove();
@@ -690,7 +692,7 @@ public abstract class AbstractDualBidiMap<K, V> implements BidiMap<K, V> {
         public void remove() {
             if (!canRemove) {
                 throw new IllegalStateException(ITERATORREMOVE);
-            }
+          }
             // store value as remove may change the entry in the decorator (e.g. TreeMap)
             final Object value = last.getValue();
             super.remove();

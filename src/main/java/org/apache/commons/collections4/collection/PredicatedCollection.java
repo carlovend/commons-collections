@@ -65,7 +65,7 @@ public class PredicatedCollection<E> extends AbstractCollectionDecorator<E> {
     private static final long serialVersionUID = -5259182142076705162L;
 
     /** The predicate to use */
-    protected final Predicate<? super E> predicate;
+    protected final transient Predicate<? super E> predicate;
 
     /**
      * Returns a Builder with the given predicate.

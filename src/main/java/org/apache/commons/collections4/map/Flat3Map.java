@@ -143,6 +143,7 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
                 if (key3 == null) {
                     return value3;
                 }
+                break;
             case 2:
                 if (key2 == null) {
                     return value2;
@@ -151,6 +152,8 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
                 if (key1 == null) {
                     return value1;
                 }
+            default:
+                break;
             }
         } else {
             if (size > 0) {
@@ -169,6 +172,8 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
                     if (hash1 == hashCode && key.equals(key1)) {
                         return value1;
                     }
+                default:
+                    break;
                 }
             }
         }
@@ -223,6 +228,8 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
                 if (key1 == null) {
                     return true;
                 }
+            default:
+                break;
             }
         } else {
             if (size > 0) {
@@ -240,6 +247,8 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
                     if (hash1 == hashCode && key.equals(key1)) {
                         return true;
                     }
+                default:
+                    break;
                 }
             }
         }
@@ -257,38 +266,12 @@ public class Flat3Map<K, V> implements IterableMap<K, V>, Serializable, Cloneabl
         if (delegateMap != null) {
             return delegateMap.containsValue(value);
         }
-        if (value == null) {  // drop through
-            switch (size) {
-            case 3:
-                if (value3 == null) {
-                    return true;
-                }
-            case 2:
-                if (value2 == null) {
-                    return true;
-                }
-            case 1:
-                if (value1 == null) {
-                    return true;
-                }
-            }
+
+        if (value == null) {
+            return size >= 1 && (value1 == null || size >= 2 && (value2 == null || size == 3 && value3 == null));
         } else {
-            switch (size) {  // drop through
-            case 3:
-                if (value.equals(value3)) {
-                    return true;
-                }
-            case 2:
-                if (value.equals(value2)) {
-                    return true;
-                }
-            case 1:
-                if (value.equals(value1)) {
-                    return true;
-                }
-            }
+            return size >= 1 && (value.equals(value1) || size >= 2 && (value.equals(value2) || size == 3 && value.equals(value3)));
         }
-        return false;
     }
 
     /**
