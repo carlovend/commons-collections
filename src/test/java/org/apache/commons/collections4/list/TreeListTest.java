@@ -25,12 +25,14 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.junit.jupiter.api.Test;
+import org.openjdk.jmh.annotations.*;
 
 /**
  * JUnit tests
  *
  * @since 3.1
  */
+@State(Scope.Benchmark)
 public class TreeListTest<E> extends AbstractListTest<E> {
 
     public TreeListTest() {
@@ -107,6 +109,10 @@ public class TreeListTest<E> extends AbstractListTest<E> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     @SuppressWarnings("unchecked")
     public void testAddMultiple() {
         final List<E> l = makeObject();
@@ -125,6 +131,10 @@ public class TreeListTest<E> extends AbstractListTest<E> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     @SuppressWarnings("unchecked")
     public void testRemove() {
         final List<E> l = makeObject();
@@ -165,6 +175,10 @@ public class TreeListTest<E> extends AbstractListTest<E> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     @SuppressWarnings("unchecked")
     public void testInsertBefore() {
         final List<E> l = makeObject();
@@ -175,6 +189,10 @@ public class TreeListTest<E> extends AbstractListTest<E> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     @SuppressWarnings("unchecked")
     public void testIndexOf() {
         final List<E> l = makeObject();
@@ -217,6 +235,10 @@ public class TreeListTest<E> extends AbstractListTest<E> {
 //    }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testBug35258() {
         final Object objectToRemove = Integer.valueOf(3);
 
@@ -248,6 +270,10 @@ public class TreeListTest<E> extends AbstractListTest<E> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testBugCollections447() {
         final List<String> treeList = new TreeList<>();
         treeList.add("A");
@@ -269,6 +295,10 @@ public class TreeListTest<E> extends AbstractListTest<E> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     @SuppressWarnings("boxing") // OK in test code
     public void testIterationOrder() {
         // COLLECTIONS-433:
@@ -296,6 +326,10 @@ public class TreeListTest<E> extends AbstractListTest<E> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     @SuppressWarnings("boxing") // OK in test code
     public void testIterationOrderAfterAddAll() {
         // COLLECTIONS-433:

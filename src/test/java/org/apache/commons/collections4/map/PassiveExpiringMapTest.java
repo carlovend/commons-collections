@@ -32,12 +32,14 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections4.collection.AbstractCollectionTest;
 import org.apache.commons.collections4.map.PassiveExpiringMap.ExpirationPolicy;
 import org.junit.jupiter.api.Test;
+import org.openjdk.jmh.annotations.*;
 
 /**
  * JUnit tests.
  *
  * @since 4.0
  */
+@State(Scope.Benchmark)
 public class PassiveExpiringMapTest<K, V> extends AbstractMapTest<K, V> {
 
     private static final class TestExpirationPolicy
@@ -111,6 +113,10 @@ public class PassiveExpiringMapTest<K, V> extends AbstractMapTest<K, V> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testConstructors() {
         assertAll(
                 () -> assertThrows(NullPointerException.class, () -> {
@@ -132,6 +138,10 @@ public class PassiveExpiringMapTest<K, V> extends AbstractMapTest<K, V> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testContainsKey() {
         final Map<Integer, String> m = makeTestMap();
         assertFalse(m.containsKey(Integer.valueOf(1)));
@@ -143,6 +153,10 @@ public class PassiveExpiringMapTest<K, V> extends AbstractMapTest<K, V> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testContainsValue() {
         final Map<Integer, String> m = makeTestMap();
         assertFalse(m.containsValue("one"));
@@ -154,6 +168,10 @@ public class PassiveExpiringMapTest<K, V> extends AbstractMapTest<K, V> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testDecoratedMap() {
         // entries shouldn't expire
         final Map<Integer, String> m = makeDecoratedTestMap();
@@ -184,12 +202,20 @@ public class PassiveExpiringMapTest<K, V> extends AbstractMapTest<K, V> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testEntrySet() {
         final Map<Integer, String> m = makeTestMap();
         assertEquals(3, m.entrySet().size());
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testExpiration() {
         validateExpiration(new PassiveExpiringMap<>(500), 500);
         validateExpiration(new PassiveExpiringMap<>(1000), 1000);
@@ -200,6 +226,10 @@ public class PassiveExpiringMapTest<K, V> extends AbstractMapTest<K, V> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testGet() {
         final Map<Integer, String> m = makeTestMap();
         assertNull(m.get(Integer.valueOf(1)));
@@ -211,6 +241,10 @@ public class PassiveExpiringMapTest<K, V> extends AbstractMapTest<K, V> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testIsEmpty() {
         Map<Integer, String> m = makeTestMap();
         assertFalse(m.isEmpty());
@@ -224,12 +258,20 @@ public class PassiveExpiringMapTest<K, V> extends AbstractMapTest<K, V> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testKeySet() {
         final Map<Integer, String> m = makeTestMap();
         assertEquals(3, m.size());
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testPut() {
         final Map<Integer, String> m = makeTestMap();
         assertNull(m.put(Integer.valueOf(1), "ONE"));
@@ -241,18 +283,30 @@ public class PassiveExpiringMapTest<K, V> extends AbstractMapTest<K, V> {
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testSize() {
         final Map<Integer, String> m = makeTestMap();
         assertEquals(3, m.size());
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testValues() {
         final Map<Integer, String> m = makeTestMap();
         assertEquals(3, m.size());
     }
 
     @Test
+    @Benchmark
+    @Fork(value = 4, warmups = 3)
+    @BenchmarkMode(Mode.Throughput)
+    @Threads(Threads.MAX)
     public void testZeroTimeToLive() {
         // item should not be available
         final PassiveExpiringMap<String, String> m = new PassiveExpiringMap<>(0L);
